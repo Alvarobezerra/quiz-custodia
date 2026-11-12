@@ -1,0 +1,53 @@
+# ========================================================
+# ROTEIRO DE QUESTÕES - CADEIA DE CUSTÓDIA
+# ========================================================
+# TIPOS DISPONÍVEIS:
+# 1) MULTIPLA_ESCOLHA (3 alternativas, marcando a correta com *)
+# 2) CHUVA_DE_PALAVRAS (Texto livre curto de até 25 caracteres)
+# ========================================================
+
+--- MOMENTO 1 (Quebra-gelo Descontraído - Múltipla Escolha) ---
+TIPO: MULTIPLA_ESCOLHA
+TEMPO: 25
+PERGUNTA: Se os detetives das séries de TV (CSI, Law & Order) seguissem a Cadeia de Custódia real, o que aconteceria?
+A) 90% das provas seriam anuladas na Justiça por contaminação e falta de registro *
+B) O episódio acabaria em 5 minutos porque ninguém mexeria na cena do crime
+C) Eles seriam promovidos imediatamente pelo rigor nos formulários de custódia
+
+--- MOMENTO 2 (Reflexão / Sondagem - Chuva de Palavras) ---
+TIPO: CHUVA_DE_PALAVRAS
+TEMPO: 45
+PERGUNTA: Em uma palavra, o que vem à sua mente quando você ouve "Cadeia de Custódia"?
+MAX_CARACTERES: 25
+
+--- MOMENTO 3 (Conceito e Finalidade - Art. 158-A do CPP) ---
+TIPO: MULTIPLA_ESCOLHA
+TEMPO: 25
+PERGUNTA: De acordo com a legislação e as boas práticas, qual é o principal objetivo da Cadeia de Custódia?
+A) Acelerar o julgamento dispensando a necessidade de laudos periciais
+B) Garantir a rastreabilidade, idoneidade e integridade da prova do início ao fim *
+C) Impedir que a defesa ou os peritos tenham acesso ao material apreendido
+
+--- MOMENTO 4 (Local de Crime e Isolamento) ---
+TIPO: MULTIPLA_ESCOLHA
+TEMPO: 20
+PERGUNTA: Qual é a primeira atitude essencial a ser tomada ao identificar um local de crime com vestígios?
+A) Limpar a poeira e organizar os objetos para facilitar as fotos da perícia
+B) Guardar as evidências no porta-malas do carro para não pegar chuva
+C) Isolar e preservar rigorosamente o local para evitar qualquer alteração *
+
+--- MOMENTO 5 (Acondicionamento e Rompimento de Lacre) ---
+TIPO: MULTIPLA_ESCOLHA
+TEMPO: 20
+PERGUNTA: O que é obrigatório fazer quando o lacre numerado de um vestígio precisa ser rompido para uma nova perícia?
+A) Fechar com fita adesiva simples e guardar sem anotar nada
+B) Justificar o motivo no laudo, registrar e aplicar um novo lacre numerado *
+C) Descartar o vestígio, pois um lacre aberto anula a prova instantaneamente
+
+--- MOMENTO 6 (Quebra da Cadeia de Custódia) ---
+TIPO: MULTIPLA_ESCOLHA
+TEMPO: 25
+PERGUNTA: Quais são as consequências jurídicas e práticas quando ocorre a "quebra da cadeia de custódia"?
+A) A confiabilidade da prova é abalada, podendo gerar sua inadmissibilidade ou nulidade *
+B) O processo é automaticamente arquivado e o Estado é obrigado a pagar indenização
+C) Nenhuma consequência, desde que o policial confirme verbalmente que a prova é legítima
