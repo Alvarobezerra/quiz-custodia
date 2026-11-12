@@ -1,6 +1,6 @@
 # ========================================================
 # ROTEIRO DE QUESTÕES - CADEIA DE CUSTÓDIA
-# Palestrante: Álvaro Bezerra · Perito Criminal
+# Palestrante: Álvaro Bezerra – Perito Criminal
 # ========================================================
 # TIPOS DISPONÍVEIS:
 # 1) CHUVA_DE_PALAVRAS (Texto livre de resposta curta)
