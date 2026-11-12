@@ -2,6 +2,37 @@
   {
     "id": 1,
     "type": "CHOICE",
+    "question": "Se os detetives das séries de TV (CSI, Law & Order) seguissem a Cadeia de Custódia real, o que aconteceria?",
+    "timeLimit": 25,
+    "options": [
+      "90% das provas seriam anuladas na Justiça por contaminação e falta de registro",
+      "O episódio acabaria em 5 minutos porque ninguém mexeria na cena do crime",
+      "Eles seriam promovidos imediatamente pelo rigor nos formulários de custódia"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "id": 2,
+    "type": "WORDCLOUD",
+    "question": "Em uma palavra, o que vem à sua mente quando você ouve \"Cadeia de Custódia\"?",
+    "timeLimit": 45,
+    "maxLength": 25
+  },
+  {
+    "id": 3,
+    "type": "CHOICE",
+    "question": "De acordo com a legislação e as boas práticas, qual é o principal objetivo da Cadeia de Custódia?",
+    "timeLimit": 25,
+    "options": [
+      "Acelerar o julgamento dispensando a necessidade de laudos periciais",
+      "Garantir a rastreabilidade, idoneidade e integridade da prova do início ao fim",
+      "Impedir que a defesa ou os peritos tenham acesso ao material apreendido"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": 4,
+    "type": "CHOICE",
     "question": "Qual é a primeira atitude essencial a ser tomada ao identificar um local de crime com vestígios?",
     "timeLimit": 20,
     "options": [
@@ -12,7 +43,7 @@
     "correctIndex": 2
   },
   {
-    "id": 2,
+    "id": 5,
     "type": "CHOICE",
     "question": "O que é obrigatório fazer quando o lacre numerado de um vestígio precisa ser rompido para uma nova perícia?",
     "timeLimit": 20,
@@ -24,7 +55,7 @@
     "correctIndex": 1
   },
   {
-    "id": 3,
+    "id": 6,
     "type": "CHOICE",
     "question": "Quais são as consequências jurídicas e práticas quando ocorre a \"quebra da cadeia de custódia\"?",
     "timeLimit": 25,
