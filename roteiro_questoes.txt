@@ -21,40 +21,40 @@ MAX_CARACTERES: 25
 
 --- MOMENTO 3 (Cadeia Geral: Preservação do Local de Crime) ---
 TIPO: MULTIPLA_ESCOLHA
-TEMPO: 25
-PERGUNTA: Na sua opinião, qual é a consequência mais grave quando a primeira equipe que chega não preserva o local do crime?
-A) Nenhuma, pois a perícia sempre consegue recuperar vestígios mesmo com o local pisoteado
-B) Vestígios cruciais são destruídos ou contaminados, podendo inocentar culpados ou condenar inocentes *
-C) Não faz diferença prática, pois o depoimento de testemunhas substitui totalmente a perícia técnica
+TEMPO: 20
+PERGUNTA: Qual é a consequência mais grave de não preservar o local de crime?
+A) Nenhuma, a perícia sempre recupera
+B) Destruição de vestígios e erro judiciário *
+C) Nenhuma, depoimentos já bastam
 
 --- MOMENTO 4 (Cadeia Geral: Quebra da Cadeia de Custódia) ---
 TIPO: MULTIPLA_ESCOLHA
-TEMPO: 25
-PERGUNTA: Se ficar comprovado que uma evidência foi transportada ou guardada sem nenhum registro ou lacre, o que a Justiça deveria fazer com essa prova?
-A) Considerar a prova inadmissível/imprestável, pois o Estado não pode se beneficiar de sua própria falha *
-B) Aceitar a prova normalmente, desde que os policiais jurem verbalmente que ninguém mexeu
-C) Repetir a perícia anos depois para tentar adivinhar como o objeto estava no dia do fato
+TEMPO: 20
+PERGUNTA: Se uma evidência foi guardada sem registro ou lacre, o que deve ocorrer?
+A) Prova inadmissível (imprestável) *
+B) Aceitar com base na palavra dos agentes
+C) Fazer nova perícia anos depois
 
 --- MOMENTO 5 (Artigos do CPP: Arts. 6º, I e 169 - Local de Crime) ---
 TIPO: MULTIPLA_ESCOLHA
-TEMPO: 25
-PERGUNTA: De acordo com os arts. 6º, I e 169 do CPP, qual é a obrigação legal da autoridade ao chegar a um local de crime antes dos peritos?
-A) Recolher rapidamente as armas e cápsulas para evitar que sumam antes da perícia
-B) Providenciar imediatamente para que não se altere o estado das coisas até a chegada dos peritos criminais *
-C) Limpar a área e organizar os objetos para agilizar o trabalho da perícia
+TEMPO: 20
+PERGUNTA: Pelos arts. 6º e 169 do CPP, qual a obrigação antes da perícia chegar?
+A) Recolher armas e cápsulas
+B) Isolar e não alterar nada *
+C) Limpar e organizar a área
 
 --- MOMENTO 6 (Artigos do CPP: Art. 158-D - Acondicionamento e Lacre) ---
 TIPO: MULTIPLA_ESCOLHA
-TEMPO: 25
-PERGUNTA: Segundo o art. 158-D do CPP, o que a lei manda fazer quando o lacre numerado de um vestígio precisa ser rompido para nova perícia?
-A) Colar com fita adesiva comum, sem necessidade de anotação
-B) Registrar em ficha com matrícula e motivo, colocar o lacre velho dentro do novo recipiente e aplicar novo lacre *
-C) Descartar o vestígio, pois um lacre rompido impede qualquer nova análise pericial
+TEMPO: 20
+PERGUNTA: Pelo art. 158-D do CPP, se for preciso romper um lacre:
+A) Fechar com fita comum
+B) Registrar, guardar lacre antigo e relacrar *
+C) Descartar o vestígio
 
 --- MOMENTO 7 (Artigos do CPP: Art. 158-C, § 2º - Invasão de Local Isolado) ---
 TIPO: MULTIPLA_ESCOLHA
-TEMPO: 25
-PERGUNTA: O que a lei prevê para quem entra em local isolado ou mexe em vestígios antes da liberação do perito criminal?
-A) Apenas uma advertência verbal por falta de cortesia forense
-B) Crime de fraude processual, com pena agravada por visar o processo penal *
-C) Nenhuma punição, desde que a pessoa alegue que só queria ajudar a resolver o caso
+TEMPO: 20
+PERGUNTA: O que ocorre com quem entra em local isolado ou mexe em vestígios?
+A) Advertência verbal
+B) Crime de fraude processual *
+C) Nenhuma punição
