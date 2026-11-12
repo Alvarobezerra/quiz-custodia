@@ -1,41 +1,26 @@
 # ========================================================
 # ROTEIRO DE QUESTÕES - CADEIA DE CUSTÓDIA
 # Palestrante: Álvaro Bezerra – Perito Criminal
+# NA SEQUÊNCIA EXATA DOS SLIDES DA APRESENTAÇÃO
 # ========================================================
 # TIPOS DISPONÍVEIS:
 # 1) CHUVA_DE_PALAVRAS (Texto livre de resposta curta)
 # 2) MULTIPLA_ESCOLHA (3 alternativas, correta marcada com *)
 # ========================================================
 
---- MOMENTO 1 (Quebra-gelo e Teste da Plataforma) ---
+--- MOMENTO 1 (Slide 1: Abertura / Teste da Plataforma) ---
 TIPO: CHUVA_DE_PALAVRAS
 TEMPO: 40
 PERGUNTA: Que animal movimentou a cidade ontem à noite?
 MAX_CARACTERES: 25
 
---- MOMENTO 2 (Sondagem Inicial de Conceito) ---
+--- MOMENTO 2 (Slide 16: Pilar I - Conceito) ---
 TIPO: CHUVA_DE_PALAVRAS
 TEMPO: 45
 PERGUNTA: Em até 3 palavras: O que é cadeia de custódia da prova?
 MAX_CARACTERES: 25
 
---- MOMENTO 3 (Cadeia Geral: Preservação do Local de Crime) ---
-TIPO: MULTIPLA_ESCOLHA
-TEMPO: 20
-PERGUNTA: Qual é a consequência mais grave de não preservar o local de crime?
-A) Nenhuma, a perícia sempre recupera
-B) Destruição de vestígios e erro judiciário *
-C) Nenhuma, depoimentos já bastam
-
---- MOMENTO 4 (Cadeia Geral: Quebra da Cadeia de Custódia) ---
-TIPO: MULTIPLA_ESCOLHA
-TEMPO: 20
-PERGUNTA: Se uma evidência foi guardada sem registro ou lacre, o que deve ocorrer?
-A) Prova inadmissível (imprestável) *
-B) Aceitar com base na palavra dos agentes
-C) Fazer nova perícia anos depois
-
---- MOMENTO 5 (Artigos do CPP: Arts. 6º, I e 169 - Local de Crime) ---
+--- MOMENTO 3 (Slides 19-21: Pilar II - Arts. 6º, I e 169) ---
 TIPO: MULTIPLA_ESCOLHA
 TEMPO: 20
 PERGUNTA: Pelos arts. 6º e 169 do CPP, qual a obrigação antes da perícia chegar?
@@ -43,7 +28,23 @@ A) Recolher armas e cápsulas
 B) Isolar e não alterar nada *
 C) Limpar e organizar a área
 
---- MOMENTO 6 (Artigos do CPP: Art. 158-D - Acondicionamento e Lacre) ---
+--- MOMENTO 4 (Slide 22: Não Preservou o Local - Consequências) ---
+TIPO: MULTIPLA_ESCOLHA
+TEMPO: 20
+PERGUNTA: Qual é a consequência mais grave de não preservar o local de crime?
+A) Nenhuma, a perícia sempre recupera
+B) Destruição de vestígios e erro judiciário *
+C) Nenhuma, depoimentos já bastam
+
+--- MOMENTO 5 (Slides 22 e 27: Art. 158-C, § 2º - Invasão de Local) ---
+TIPO: MULTIPLA_ESCOLHA
+TEMPO: 20
+PERGUNTA: O que ocorre com quem entra em local isolado ou mexe em vestígios?
+A) Advertência verbal
+B) Crime de fraude processual *
+C) Nenhuma punição
+
+--- MOMENTO 6 (Slide 29: Art. 158-D - Acondicionamento e Lacre) ---
 TIPO: MULTIPLA_ESCOLHA
 TEMPO: 20
 PERGUNTA: Pelo art. 158-D do CPP, se for preciso romper um lacre:
@@ -51,10 +52,10 @@ A) Fechar com fita comum
 B) Registrar, guardar lacre antigo e relacrar *
 C) Descartar o vestígio
 
---- MOMENTO 7 (Artigos do CPP: Art. 158-C, § 2º - Invasão de Local Isolado) ---
+--- MOMENTO 7 (Slide 51: Pilar III - Consequência / Quebra da Cadeia) ---
 TIPO: MULTIPLA_ESCOLHA
 TEMPO: 20
-PERGUNTA: O que ocorre com quem entra em local isolado ou mexe em vestígios?
-A) Advertência verbal
-B) Crime de fraude processual *
-C) Nenhuma punição
+PERGUNTA: Se uma evidência foi guardada sem registro ou lacre, o que deve ocorrer?
+A) Prova inadmissível (imprestável) *
+B) Aceitar com base na palavra dos agentes
+C) Fazer nova perícia anos depois

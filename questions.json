@@ -16,6 +16,18 @@
   {
     "id": 3,
     "type": "CHOICE",
+    "question": "Pelos arts. 6º e 169 do CPP, qual a obrigação antes da perícia chegar?",
+    "timeLimit": 20,
+    "options": [
+      "Recolher armas e cápsulas",
+      "Isolar e não alterar nada",
+      "Limpar e organizar a área"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": 4,
+    "type": "CHOICE",
     "question": "Qual é a consequência mais grave de não preservar o local de crime?",
     "timeLimit": 20,
     "options": [
@@ -26,26 +38,14 @@
     "correctIndex": 1
   },
   {
-    "id": 4,
-    "type": "CHOICE",
-    "question": "Se uma evidência foi guardada sem registro ou lacre, o que deve ocorrer?",
-    "timeLimit": 20,
-    "options": [
-      "Prova inadmissível (imprestável)",
-      "Aceitar com base na palavra dos agentes",
-      "Fazer nova perícia anos depois"
-    ],
-    "correctIndex": 0
-  },
-  {
     "id": 5,
     "type": "CHOICE",
-    "question": "Pelos arts. 6º e 169 do CPP, qual a obrigação antes da perícia chegar?",
+    "question": "O que ocorre com quem entra em local isolado ou mexe em vestígios?",
     "timeLimit": 20,
     "options": [
-      "Recolher armas e cápsulas",
-      "Isolar e não alterar nada",
-      "Limpar e organizar a área"
+      "Advertência verbal",
+      "Crime de fraude processual",
+      "Nenhuma punição"
     ],
     "correctIndex": 1
   },
@@ -64,13 +64,13 @@
   {
     "id": 7,
     "type": "CHOICE",
-    "question": "O que ocorre com quem entra em local isolado ou mexe em vestígios?",
+    "question": "Se uma evidência foi guardada sem registro ou lacre, o que deve ocorrer?",
     "timeLimit": 20,
     "options": [
-      "Advertência verbal",
-      "Crime de fraude processual",
-      "Nenhuma punição"
+      "Prova inadmissível (imprestável)",
+      "Aceitar com base na palavra dos agentes",
+      "Fazer nova perícia anos depois"
     ],
-    "correctIndex": 1
+    "correctIndex": 0
   }
 ]
