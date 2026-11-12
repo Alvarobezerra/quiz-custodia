@@ -1,69 +1,76 @@
 [
   {
     "id": 1,
-    "type": "CHOICE",
-    "question": "Se os detetives das séries de TV (CSI, Law & Order) seguissem a Cadeia de Custódia real, o que aconteceria?",
-    "timeLimit": 25,
-    "options": [
-      "90% das provas seriam anuladas na Justiça por contaminação e falta de registro",
-      "O episódio acabaria em 5 minutos porque ninguém mexeria na cena do crime",
-      "Eles seriam promovidos imediatamente pelo rigor nos formulários de custódia"
-    ],
-    "correctIndex": 0
+    "type": "WORDCLOUD",
+    "question": "Que animal movimentou a cidade ontem à noite?",
+    "timeLimit": 40,
+    "maxLength": 25
   },
   {
     "id": 2,
     "type": "WORDCLOUD",
-    "question": "Em uma palavra, o que vem à sua mente quando você ouve \"Cadeia de Custódia\"?",
+    "question": "Em até 3 palavras: O que é cadeia de custódia da prova?",
     "timeLimit": 45,
     "maxLength": 25
   },
   {
     "id": 3,
     "type": "CHOICE",
-    "question": "De acordo com a legislação e as boas práticas, qual é o principal objetivo da Cadeia de Custódia?",
+    "question": "Na sua opinião, qual é a consequência mais grave quando a primeira equipe que chega não preserva o local do crime?",
     "timeLimit": 25,
     "options": [
-      "Acelerar o julgamento dispensando a necessidade de laudos periciais",
-      "Garantir a rastreabilidade, idoneidade e integridade da prova do início ao fim",
-      "Impedir que a defesa ou os peritos tenham acesso ao material apreendido"
+      "Nenhuma, pois a perícia sempre consegue recuperar vestígios mesmo com o local pisoteado",
+      "Vestígios cruciais são destruídos ou contaminados, podendo inocentar culpados ou condenar inocentes",
+      "Não faz diferença prática, pois o depoimento de testemunhas substitui totalmente a perícia técnica"
     ],
     "correctIndex": 1
   },
   {
     "id": 4,
     "type": "CHOICE",
-    "question": "Qual é a primeira atitude essencial a ser tomada ao identificar um local de crime com vestígios?",
-    "timeLimit": 20,
+    "question": "Se ficar comprovado que uma evidência foi transportada ou guardada sem nenhum registro ou lacre, o que a Justiça deveria fazer com essa prova?",
+    "timeLimit": 25,
     "options": [
-      "Limpar a poeira e organizar os objetos para facilitar as fotos da perícia",
-      "Guardar as evidências no porta-malas do carro para não pegar chuva",
-      "Isolar e preservar rigorosamente o local para evitar qualquer alteração"
+      "Considerar a prova inadmissível/imprestável, pois o Estado não pode se beneficiar de sua própria falha",
+      "Aceitar a prova normalmente, desde que os policiais jurem verbalmente que ninguém mexeu",
+      "Repetir a perícia anos depois para tentar adivinhar como o objeto estava no dia do fato"
     ],
-    "correctIndex": 2
+    "correctIndex": 0
   },
   {
     "id": 5,
     "type": "CHOICE",
-    "question": "O que é obrigatório fazer quando o lacre numerado de um vestígio precisa ser rompido para uma nova perícia?",
-    "timeLimit": 20,
+    "question": "De acordo com os arts. 6º, I e 169 do CPP, qual é a obrigação legal da autoridade ao chegar a um local de crime antes dos peritos?",
+    "timeLimit": 25,
     "options": [
-      "Fechar com fita adesiva simples e guardar sem anotar nada",
-      "Justificar o motivo no laudo, registrar e aplicar um novo lacre numerado",
-      "Descartar o vestígio, pois um lacre aberto anula a prova instantaneamente"
+      "Recolher rapidamente as armas e cápsulas para evitar que sumam antes da perícia",
+      "Providenciar imediatamente para que não se altere o estado das coisas até a chegada dos peritos criminais",
+      "Limpar a área e organizar os objetos para agilizar o trabalho da perícia"
     ],
     "correctIndex": 1
   },
   {
     "id": 6,
     "type": "CHOICE",
-    "question": "Quais são as consequências jurídicas e práticas quando ocorre a \"quebra da cadeia de custódia\"?",
+    "question": "Segundo o art. 158-D do CPP, o que a lei manda fazer quando o lacre numerado de um vestígio precisa ser rompido para nova perícia?",
     "timeLimit": 25,
     "options": [
-      "A confiabilidade da prova é abalada, podendo gerar sua inadmissibilidade ou nulidade",
-      "O processo é automaticamente arquivado e o Estado é obrigado a pagar indenização",
-      "Nenhuma consequência, desde que o policial confirme verbalmente que a prova é legítima"
+      "Colar com fita adesiva comum, sem necessidade de anotação",
+      "Registrar em ficha com matrícula e motivo, colocar o lacre velho dentro do novo recipiente e aplicar novo lacre",
+      "Descartar o vestígio, pois um lacre rompido impede qualquer nova análise pericial"
     ],
-    "correctIndex": 0
+    "correctIndex": 1
+  },
+  {
+    "id": 7,
+    "type": "CHOICE",
+    "question": "O que a lei prevê para quem entra em local isolado ou mexe em vestígios antes da liberação do perito criminal?",
+    "timeLimit": 25,
+    "options": [
+      "Apenas uma advertência verbal por falta de cortesia forense",
+      "Crime de fraude processual, com pena agravada por visar o processo penal",
+      "Nenhuma punição, desde que a pessoa alegue que só queria ajudar a resolver o caso"
+    ],
+    "correctIndex": 1
   }
 ]

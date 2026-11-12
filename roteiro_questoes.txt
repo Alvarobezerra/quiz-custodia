@@ -1,53 +1,60 @@
 # ========================================================
 # ROTEIRO DE QUESTÕES - CADEIA DE CUSTÓDIA
+# Palestrante: Álvaro Bezerra · Perito Criminal
 # ========================================================
 # TIPOS DISPONÍVEIS:
-# 1) MULTIPLA_ESCOLHA (3 alternativas, marcando a correta com *)
-# 2) CHUVA_DE_PALAVRAS (Texto livre curto de até 25 caracteres)
+# 1) CHUVA_DE_PALAVRAS (Texto livre de resposta curta)
+# 2) MULTIPLA_ESCOLHA (3 alternativas, correta marcada com *)
 # ========================================================
 
---- MOMENTO 1 (Quebra-gelo Descontraído - Múltipla Escolha) ---
-TIPO: MULTIPLA_ESCOLHA
-TEMPO: 25
-PERGUNTA: Se os detetives das séries de TV (CSI, Law & Order) seguissem a Cadeia de Custódia real, o que aconteceria?
-A) 90% das provas seriam anuladas na Justiça por contaminação e falta de registro *
-B) O episódio acabaria em 5 minutos porque ninguém mexeria na cena do crime
-C) Eles seriam promovidos imediatamente pelo rigor nos formulários de custódia
-
---- MOMENTO 2 (Reflexão / Sondagem - Chuva de Palavras) ---
+--- MOMENTO 1 (Quebra-gelo e Teste da Plataforma) ---
 TIPO: CHUVA_DE_PALAVRAS
-TEMPO: 45
-PERGUNTA: Em uma palavra, o que vem à sua mente quando você ouve "Cadeia de Custódia"?
+TEMPO: 40
+PERGUNTA: Que animal movimentou a cidade ontem à noite?
 MAX_CARACTERES: 25
 
---- MOMENTO 3 (Conceito e Finalidade - Art. 158-A do CPP) ---
+--- MOMENTO 2 (Sondagem Inicial de Conceito) ---
+TIPO: CHUVA_DE_PALAVRAS
+TEMPO: 45
+PERGUNTA: Em até 3 palavras: O que é cadeia de custódia da prova?
+MAX_CARACTERES: 25
+
+--- MOMENTO 3 (Cadeia Geral: Preservação do Local de Crime) ---
 TIPO: MULTIPLA_ESCOLHA
 TEMPO: 25
-PERGUNTA: De acordo com a legislação e as boas práticas, qual é o principal objetivo da Cadeia de Custódia?
-A) Acelerar o julgamento dispensando a necessidade de laudos periciais
-B) Garantir a rastreabilidade, idoneidade e integridade da prova do início ao fim *
-C) Impedir que a defesa ou os peritos tenham acesso ao material apreendido
+PERGUNTA: Na sua opinião, qual é a consequência mais grave quando a primeira equipe que chega não preserva o local do crime?
+A) Nenhuma, pois a perícia sempre consegue recuperar vestígios mesmo com o local pisoteado
+B) Vestígios cruciais são destruídos ou contaminados, podendo inocentar culpados ou condenar inocentes *
+C) Não faz diferença prática, pois o depoimento de testemunhas substitui totalmente a perícia técnica
 
---- MOMENTO 4 (Local de Crime e Isolamento) ---
-TIPO: MULTIPLA_ESCOLHA
-TEMPO: 20
-PERGUNTA: Qual é a primeira atitude essencial a ser tomada ao identificar um local de crime com vestígios?
-A) Limpar a poeira e organizar os objetos para facilitar as fotos da perícia
-B) Guardar as evidências no porta-malas do carro para não pegar chuva
-C) Isolar e preservar rigorosamente o local para evitar qualquer alteração *
-
---- MOMENTO 5 (Acondicionamento e Rompimento de Lacre) ---
-TIPO: MULTIPLA_ESCOLHA
-TEMPO: 20
-PERGUNTA: O que é obrigatório fazer quando o lacre numerado de um vestígio precisa ser rompido para uma nova perícia?
-A) Fechar com fita adesiva simples e guardar sem anotar nada
-B) Justificar o motivo no laudo, registrar e aplicar um novo lacre numerado *
-C) Descartar o vestígio, pois um lacre aberto anula a prova instantaneamente
-
---- MOMENTO 6 (Quebra da Cadeia de Custódia) ---
+--- MOMENTO 4 (Cadeia Geral: Quebra da Cadeia de Custódia) ---
 TIPO: MULTIPLA_ESCOLHA
 TEMPO: 25
-PERGUNTA: Quais são as consequências jurídicas e práticas quando ocorre a "quebra da cadeia de custódia"?
-A) A confiabilidade da prova é abalada, podendo gerar sua inadmissibilidade ou nulidade *
-B) O processo é automaticamente arquivado e o Estado é obrigado a pagar indenização
-C) Nenhuma consequência, desde que o policial confirme verbalmente que a prova é legítima
+PERGUNTA: Se ficar comprovado que uma evidência foi transportada ou guardada sem nenhum registro ou lacre, o que a Justiça deveria fazer com essa prova?
+A) Considerar a prova inadmissível/imprestável, pois o Estado não pode se beneficiar de sua própria falha *
+B) Aceitar a prova normalmente, desde que os policiais jurem verbalmente que ninguém mexeu
+C) Repetir a perícia anos depois para tentar adivinhar como o objeto estava no dia do fato
+
+--- MOMENTO 5 (Artigos do CPP: Arts. 6º, I e 169 - Local de Crime) ---
+TIPO: MULTIPLA_ESCOLHA
+TEMPO: 25
+PERGUNTA: De acordo com os arts. 6º, I e 169 do CPP, qual é a obrigação legal da autoridade ao chegar a um local de crime antes dos peritos?
+A) Recolher rapidamente as armas e cápsulas para evitar que sumam antes da perícia
+B) Providenciar imediatamente para que não se altere o estado das coisas até a chegada dos peritos criminais *
+C) Limpar a área e organizar os objetos para agilizar o trabalho da perícia
+
+--- MOMENTO 6 (Artigos do CPP: Art. 158-D - Acondicionamento e Lacre) ---
+TIPO: MULTIPLA_ESCOLHA
+TEMPO: 25
+PERGUNTA: Segundo o art. 158-D do CPP, o que a lei manda fazer quando o lacre numerado de um vestígio precisa ser rompido para nova perícia?
+A) Colar com fita adesiva comum, sem necessidade de anotação
+B) Registrar em ficha com matrícula e motivo, colocar o lacre velho dentro do novo recipiente e aplicar novo lacre *
+C) Descartar o vestígio, pois um lacre rompido impede qualquer nova análise pericial
+
+--- MOMENTO 7 (Artigos do CPP: Art. 158-C, § 2º - Invasão de Local Isolado) ---
+TIPO: MULTIPLA_ESCOLHA
+TEMPO: 25
+PERGUNTA: O que a lei prevê para quem entra em local isolado ou mexe em vestígios antes da liberação do perito criminal?
+A) Apenas uma advertência verbal por falta de cortesia forense
+B) Crime de fraude processual, com pena agravada por visar o processo penal *
+C) Nenhuma punição, desde que a pessoa alegue que só queria ajudar a resolver o caso
