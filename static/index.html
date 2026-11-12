@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Quiz Interativo - Participante</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <!-- Google Fonts Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Outfit', sans-serif;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pulse-subtle {
+      animation: pulseSubtle 2s infinite ease-in-out;
+    }
+    @keyframes pulseSubtle {
+      0%, 100% { transform: scale(1); opacity: 0.95; }
+      50% { transform: scale(1.03); opacity: 1; }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-white min-h-[100dvh] flex flex-col justify-between overflow-hidden">
+
+  <!-- Player Header -->
+  <header class="w-full px-5 py-3.5 flex items-center justify-between border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40">
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-black text-sm">
+        ⚡
+      </div>
+      <span class="font-extrabold text-base tracking-tight text-white" id="headerPlayerName">
+        Quiz Ao Vivo
+      </span>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <!-- Player Score Badge -->
+      <div id="playerScoreBadge" class="hidden px-3 py-1 rounded-xl bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 font-black text-sm">
+        <span id="playerScoreText">0</span> pts
+      </div>
+      <!-- Connection Indicator -->
+      <div id="connDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+    </div>
+  </header>
+
+  <!-- Dynamic Views Container -->
+  <main class="flex-1 w-full max-w-md mx-auto p-5 flex flex-col justify-center items-center">
+
+    <!-- ================= 1. JOIN VIEW ================= -->
+    <div id="viewJoin" class="w-full flex flex-col items-center gap-6">
+      <div class="text-center">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 mx-auto flex items-center justify-center text-3xl shadow-xl shadow-indigo-500/20 mb-3">
+          🎯
+        </div>
+        <h2 class="text-3xl font-black text-white">Participe do Quiz!</h2>
+        <p class="text-slate-400 text-sm mt-1">Digite seu nome ou apelido para entrar na disputa:</p>
+      </div>
+
+      <form onsubmit="handleJoin(event)" class="w-full flex flex-col gap-3.5">
+        <input 
+          type="text" 
+          id="inputName" 
+          maxlength="25"
+          placeholder="Ex: Carlos, Ana Silva, João..." 
+          required
+          autofocus
+          class="w-full px-5 py-4 rounded-2xl bg-slate-900 border-2 border-slate-700 text-white font-bold text-lg placeholder-slate-500 focus:border-indigo-500 focus:outline-none transition shadow-inner text-center"
+        >
+
+        <button 
+          type="submit" 
+          class="w-full py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black text-lg tracking-wide shadow-lg shadow-indigo-600/30 active:scale-95 transition"
+        >
+          Entrar no Jogo 🚀
+        </button>
+      </form>
+    </div>
+
+    <!-- ================= 2. LOBBY VIEW (WAITING) ================= -->
+    <div id="viewLobby" class="w-full hidden flex-col items-center text-center gap-6">
+      <div class="w-20 h-20 rounded-full bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-4xl pulse-subtle">
+        🎮
+      </div>
+      <div>
+        <span class="px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-xs uppercase tracking-wider">
+          Conectado com sucesso
+        </span>
+        <h3 class="text-2xl font-black text-white mt-3">Você está dentro, <span id="lobbyUserName" class="text-indigo-400"></span>!</h3>
+        <p class="text-slate-400 text-sm mt-2">
+          Olhe para a tela principal do apresentador.<br>O quiz começará a qualquer momento!
+        </p>
+      </div>
+
+      <div class="w-full py-3 px-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-center justify-center gap-2 text-xs text-slate-400">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        Sincronizado em tempo real
+      </div>
+    </div>
+
+    <!-- ================= 3. QUESTION VIEW (ANSWER BUTTONS) ================= -->
+    <div id="viewQuestion" class="w-full hidden flex-col justify-between h-full gap-4">
+      <!-- Question progress and timer -->
+      <div class="flex items-center justify-between bg-slate-900/90 border border-slate-800 px-4 py-2.5 rounded-2xl">
+        <span id="playerQuestionBadge" class="text-xs font-black text-indigo-400">Pergunta 1 de 4</span>
+        <div class="flex items-center gap-1.5 text-sm font-black text-white">
+          <span>⏱️</span>
+          <span id="playerTimer">20</span>s
+        </div>
+      </div>
+
+      <!-- Question Text (Small prompt) -->
+      <div class="bg-slate-900/60 border border-slate-800/80 p-3.5 rounded-2xl text-center">
+        <p id="playerQuestionText" class="text-sm font-bold text-slate-200 line-clamp-2">Pergunta...</p>
+      </div>
+
+      <!-- WORD CLOUD FORM (When question is WORDCLOUD type) -->
+      <form id="playerWordCloudForm" onsubmit="submitWordAnswer(event)" class="hidden flex-col gap-3 w-full flex-1 justify-center py-4">
+        <div class="text-center mb-1">
+          <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider">☁️ Resposta Livre</span>
+          <p class="text-slate-400 text-xs mt-0.5">Digite sua palavra-chave (você pode enviar até 3):</p>
+          <div id="wordProgressBadge" class="inline-block mt-1 px-3 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 font-bold text-[11px]">
+            Palavra 1 de 3
+          </div>
+        </div>
+
+        <div class="relative w-full">
+          <input 
+            type="text" 
+            id="inputWordAnswer" 
+            maxlength="25" 
+            placeholder="Digite sua palavra..." 
+            oninput="updateCharCounter(this.value)"
+            required
+            class="w-full px-5 py-4 rounded-2xl bg-slate-900 border-2 border-slate-700 text-white font-extrabold text-lg placeholder-slate-500 focus:border-indigo-500 focus:outline-none transition shadow-inner text-center"
+          >
+          <span id="charCountDisplay" class="absolute right-4 bottom-4 text-xs font-bold text-slate-500">
+            0/25
+          </span>
+        </div>
+
+        <button 
+          id="btnSubmitWord"
+          type="submit" 
+          class="w-full py-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black text-lg tracking-wide shadow-lg shadow-indigo-600/30 active:scale-95 transition flex items-center justify-center gap-2"
+        >
+          <span>Enviar para o Telão 🚀</span>
+        </button>
+
+        <p id="wordFeedbackToast" class="hidden text-center text-xs font-bold text-emerald-400 animate-bounce mt-1">
+          ✅ Palavra enviada! Você pode enviar mais uma acima.
+        </p>
+      </form>
+
+      <!-- Answer Buttons Grid (When question is CHOICE type) -->
+      <div id="playerButtonsGrid" class="grid grid-cols-1 gap-3 w-full flex-1">
+        <!-- Button 0 (Red) -->
+        <button onclick="submitAnswer(0)" id="btnOpt0" class="btn-option relative w-full p-4 rounded-2xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 active:scale-95 text-white font-extrabold text-base flex items-center gap-3.5 shadow-lg shadow-rose-600/20 transition">
+          <span class="w-10 h-10 rounded-xl bg-black/20 flex items-center justify-center text-xl shrink-0">▲</span>
+          <span id="btnText0" class="text-left font-bold text-sm leading-tight flex-1">Opção A</span>
+        </button>
+
+        <!-- Button 1 (Blue) -->
+        <button onclick="submitAnswer(1)" id="btnOpt1" class="btn-option relative w-full p-4 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 active:scale-95 text-white font-extrabold text-base flex items-center gap-3.5 shadow-lg shadow-blue-600/20 transition">
+          <span class="w-10 h-10 rounded-xl bg-black/20 flex items-center justify-center text-xl shrink-0">◆</span>
+          <span id="btnText1" class="text-left font-bold text-sm leading-tight flex-1">Opção B</span>
+        </button>
+
+        <!-- Button 2 (Amber) -->
+        <button onclick="submitAnswer(2)" id="btnOpt2" class="btn-option relative w-full p-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 active:scale-95 text-slate-950 font-extrabold text-base flex items-center gap-3.5 shadow-lg shadow-amber-500/20 transition">
+          <span class="w-10 h-10 rounded-xl bg-black/20 flex items-center justify-center text-xl shrink-0 text-white">●</span>
+          <span id="btnText2" class="text-left font-black text-sm leading-tight flex-1">Opção C</span>
+        </button>
+
+        <!-- Button 3 (Emerald) -->
+        <button onclick="submitAnswer(3)" id="btnOpt3" class="btn-option relative w-full p-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 active:scale-95 text-white font-extrabold text-base flex items-center gap-3.5 shadow-lg shadow-emerald-600/20 transition">
+          <span class="w-10 h-10 rounded-xl bg-black/20 flex items-center justify-center text-xl shrink-0">■</span>
+          <span id="btnText3" class="text-left font-bold text-sm leading-tight flex-1">Opção D</span>
+        </button>
+      </div>
+
+      <!-- State: Answer Submitted Overlay -->
+      <div id="answeredOverlay" class="hidden flex-col items-center justify-center gap-3 py-6 bg-slate-900/90 border border-slate-700 rounded-2xl backdrop-blur-sm">
+        <div class="w-12 h-12 rounded-full bg-indigo-500/20 border border-indigo-400 flex items-center justify-center text-2xl animate-spin">
+          ⏳
+        </div>
+        <p class="text-white font-black text-lg">Resposta Enviada!</p>
+        <p class="text-slate-400 text-xs">Aguardando o encerramento do tempo...</p>
+      </div>
+    </div>
+
+    <!-- ================= 4. REVEAL / RESULT VIEW ================= -->
+    <div id="viewReveal" class="w-full hidden flex-col items-center text-center gap-5">
+      <div id="revealIconBox" class="w-24 h-24 rounded-3xl flex items-center justify-center text-5xl shadow-2xl">
+        🎉
+      </div>
+
+      <div>
+        <h3 id="revealTitle" class="text-3xl font-black text-white">Correto!</h3>
+        <p id="revealSubtitle" class="text-indigo-400 font-extrabold text-lg mt-1">+1.250 pontos</p>
+        <p id="revealStreak" class="text-xs text-orange-400 font-bold mt-1 hidden">🔥 Sequência de 2 acertos!</p>
+      </div>
+
+      <div class="w-full p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center">
+        <p class="text-xs text-slate-400 uppercase tracking-wide font-bold">Sua Pontuação Total</p>
+        <p id="revealTotalScore" class="text-3xl font-black text-white mt-1">1.250 pts</p>
+      </div>
+
+      <p class="text-xs text-slate-500">Olhe para o telão para ver o placar completo!</p>
+    </div>
+
+    <!-- ================= 5. PODIUM / FINAL VIEW ================= -->
+    <div id="viewPodium" class="w-full hidden flex-col items-center text-center gap-5">
+      <div class="text-6xl animate-bounce">🏆</div>
+      <h3 class="text-3xl font-black text-white">Fim do Quiz!</h3>
+      <p class="text-slate-400 text-sm">Obrigado por participar da apresentação!</p>
+
+      <div class="w-full p-6 rounded-2xl bg-gradient-to-b from-indigo-900/40 to-slate-900 border border-indigo-500/30">
+        <p class="text-xs text-indigo-300 uppercase tracking-wider font-bold">Sua Pontuação Final</p>
+        <p id="finalScore" class="text-4xl font-black text-yellow-400 mt-2">0 pts</p>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="w-full py-2.5 px-4 text-center text-[11px] text-slate-600 border-t border-slate-900">
+    Quiz Interativo • Conectado via Mobile
+  </footer>
+
+  <!-- SCRIPT -->
+  <script>
+    let ws;
+    let playerId = localStorage.getItem('quiz_player_id');
+    let playerName = localStorage.getItem('quiz_player_name');
+    let hasAnsweredCurrent = false;
+
+    function initWS() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        document.getElementById('connDot').className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+        if (playerId && playerName) {
+          joinGame(playerId, playerName);
+        }
+      };
+
+      ws.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        if (msg.type === 'JOIN_SUCCESS') {
+          playerId = msg.player_id;
+          playerName = msg.name;
+          localStorage.setItem('quiz_player_id', playerId);
+          localStorage.setItem('quiz_player_name', playerName);
+          document.getElementById('headerPlayerName').innerText = playerName;
+        } else if (msg.type === 'STATE_UPDATE') {
+          renderPlayerState(msg.data);
+        } else if (msg.type === 'TICK') {
+          const tEl = document.getElementById('playerTimer');
+          if (tEl) tEl.innerText = msg.time_left;
+        } else if (msg.type === 'KICKED') {
+          localStorage.clear();
+          location.reload();
+        }
+      };
+
+      ws.onclose = () => {
+        document.getElementById('connDot').className = 'w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse';
+        setTimeout(initWS, 2000);
+      };
+    }
+
+    function handleJoin(e) {
+      e.preventDefault();
+      const input = document.getElementById('inputName');
+      const name = input.value.trim();
+      if (!name) return;
+
+      playerId = 'p_' + Math.random().toString(36).substr(2, 9);
+      playerName = name;
+      joinGame(playerId, playerName);
+    }
+
+    function joinGame(id, name) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'PLAYER_JOIN',
+          id: id,
+          name: name
+        }));
+      }
+    }
+
+    function renderPlayerState(data) {
+      const myInfo = data.my_info;
+
+      const vJoin = document.getElementById('viewJoin');
+      const vLobby = document.getElementById('viewLobby');
+      const vQuestion = document.getElementById('viewQuestion');
+      const vReveal = document.getElementById('viewReveal');
+      const vPodium = document.getElementById('viewPodium');
+
+      // Update score badge
+      if (myInfo) {
+        document.getElementById('playerScoreBadge').classList.remove('hidden');
+        document.getElementById('playerScoreText').innerText = myInfo.score.toLocaleString();
+        document.getElementById('headerPlayerName').innerText = myInfo.name;
+      }
+
+      // Hide all views
+      [vJoin, vLobby, vQuestion, vReveal, vPodium].forEach(el => {
+        if (el) {
+          el.style.display = 'none';
+          el.classList.add('hidden');
+        }
+      });
+
+      // If user not joined yet
+      if (!myInfo) {
+        vJoin.style.display = 'flex';
+        vJoin.classList.remove('hidden');
+        return;
+      }
+
+      if (data.state === 'LOBBY') {
+        hasAnsweredCurrent = false;
+        vLobby.style.display = 'flex';
+        vLobby.classList.remove('hidden');
+        document.getElementById('lobbyUserName').innerText = myInfo.name;
+      } else if (data.state === 'QUESTION') {
+        vQuestion.style.display = 'flex';
+        vQuestion.classList.remove('hidden');
+        renderQuestion(data, myInfo);
+      } else if (data.state === 'REVEAL') {
+        vReveal.style.display = 'flex';
+        vReveal.classList.remove('hidden');
+        renderReveal(data, myInfo);
+      } else if (data.state === 'LEADERBOARD') {
+        vReveal.style.display = 'flex';
+        vReveal.classList.remove('hidden');
+        renderReveal(data, myInfo);
+      } else if (data.state === 'PODIUM') {
+        vPodium.style.display = 'flex';
+        vPodium.classList.remove('hidden');
+        document.getElementById('finalScore').innerText = `${myInfo.score.toLocaleString()} pts`;
+        confetti({ particleCount: 70, spread: 80 });
+      }
+    }
+
+    let currentMaxLen = 25;
+
+    function renderQuestion(data, myInfo) {
+      const q = data.question;
+      if (!q) return;
+
+      const qType = q.type || 'CHOICE';
+      const typeLabel = qType === 'WORDCLOUD' ? '☁️ Chuva de Palavras' : '🎯 Múltipla Escolha';
+
+      document.getElementById('playerQuestionBadge').innerText = `${typeLabel} • ${q.index + 1} de ${q.total}`;
+      document.getElementById('playerQuestionText').innerText = q.question;
+      document.getElementById('playerTimer').innerText = data.time_left;
+
+      const answeredOverlay = document.getElementById('answeredOverlay');
+      const buttonsGrid = document.getElementById('playerButtonsGrid');
+      const wordCloudForm = document.getElementById('playerWordCloudForm');
+
+      if (myInfo.has_answered) {
+        answeredOverlay.classList.remove('hidden');
+        buttonsGrid.classList.add('hidden');
+        wordCloudForm.classList.add('hidden');
+      } else {
+        answeredOverlay.classList.add('hidden');
+
+        if (qType === 'WORDCLOUD') {
+          buttonsGrid.style.display = 'none';
+          buttonsGrid.classList.add('hidden');
+          const wordsSent = myInfo.words_sent || 0;
+          const maxWords = myInfo.max_words || 3;
+
+          if (wordsSent >= maxWords) {
+            wordCloudForm.style.display = 'none';
+            wordCloudForm.classList.add('hidden');
+            answeredOverlay.style.display = 'flex';
+            answeredOverlay.classList.remove('hidden');
+            document.querySelector('#answeredOverlay p').innerText = 'Limite de palavras enviado!';
+            document.querySelector('#answeredOverlay p:last-child').innerText = 'Olhe para o telão para ver a nuvem crescer!';
+          } else {
+            wordCloudForm.style.display = 'flex';
+            wordCloudForm.classList.remove('hidden');
+            answeredOverlay.style.display = 'none';
+            answeredOverlay.classList.add('hidden');
+            currentMaxLen = q.maxLength || 25;
+            const input = document.getElementById('inputWordAnswer');
+            input.maxLength = currentMaxLen;
+            document.getElementById('charCountDisplay').innerText = `0/${currentMaxLen}`;
+            document.getElementById('wordProgressBadge').innerText = `Palavra ${wordsSent + 1} de ${maxWords}`;
+            input.focus();
+          }
+        } else {
+          wordCloudForm.style.display = 'none';
+          wordCloudForm.classList.add('hidden');
+          buttonsGrid.style.display = 'grid';
+          buttonsGrid.classList.remove('hidden');
+
+          // Populate options (supports 2, 3 or 4 options dynamically)
+          for (let i = 0; i < 4; i++) {
+            const btn = document.getElementById(`btnOpt${i}`);
+            const text = document.getElementById(`btnText${i}`);
+            if (btn && text) {
+              if (i < (q.options || []).length) {
+                btn.classList.remove('hidden');
+                text.innerText = q.options[i];
+                btn.disabled = false;
+                btn.classList.remove('opacity-50');
+              } else {
+                btn.classList.add('hidden');
+              }
+            }
+          }
+        }
+      }
+    }
+
+    function updateCharCounter(val) {
+      document.getElementById('charCountDisplay').innerText = `${val.length}/${currentMaxLen}`;
+    }
+
+    function submitWordAnswer(e) {
+      e.preventDefault();
+      const input = document.getElementById('inputWordAnswer');
+      const text = input.value.trim();
+      if (!text) return;
+
+      if (navigator.vibrate) navigator.vibrate(50);
+
+      // Show toast feedback and clear input for next word
+      const toast = document.getElementById('wordFeedbackToast');
+      if (toast) {
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 2500);
+      }
+      input.value = '';
+      document.getElementById('charCountDisplay').innerText = `0/${currentMaxLen}`;
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'SUBMIT_ANSWER',
+          text: text
+        }));
+      }
+    }
+
+    function submitAnswer(optionIndex) {
+      if (navigator.vibrate) navigator.vibrate(50);
+      hasAnsweredCurrent = true;
+
+      // Disable buttons
+      for (let i = 0; i < 4; i++) {
+        const btn = document.getElementById(`btnOpt${i}`);
+        if (btn) btn.disabled = true;
+      }
+
+      document.getElementById('playerButtonsGrid').classList.add('hidden');
+      document.getElementById('answeredOverlay').classList.remove('hidden');
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'SUBMIT_ANSWER',
+          option_index: optionIndex
+        }));
+      }
+    }
+
+    function renderReveal(data, myInfo) {
+      const res = myInfo.last_result;
+      const iconBox = document.getElementById('revealIconBox');
+      const title = document.getElementById('revealTitle');
+      const subtitle = document.getElementById('revealSubtitle');
+      const streakEl = document.getElementById('revealStreak');
+      const totalScoreEl = document.getElementById('revealTotalScore');
+
+      totalScoreEl.innerText = `${myInfo.score.toLocaleString()} pts`;
+
+      if (res && res.text) {
+        // Word Cloud result
+        iconBox.className = 'w-24 h-24 rounded-3xl flex items-center justify-center text-5xl shadow-2xl bg-indigo-500/20 border-2 border-indigo-400 text-indigo-400';
+        iconBox.innerText = '☁️';
+        title.innerText = 'Palavra no Telão!';
+        title.className = 'text-3xl font-black text-indigo-300';
+        subtitle.innerText = `Sua palavra: "${res.text}" (+${res.points} pts)`;
+        streakEl.classList.add('hidden');
+        confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
+      } else if (res && res.is_correct) {
+        iconBox.className = 'w-24 h-24 rounded-3xl flex items-center justify-center text-5xl shadow-2xl bg-emerald-500/20 border-2 border-emerald-400 text-emerald-400';
+        iconBox.innerText = '✅';
+        title.innerText = 'Correto!';
+        title.className = 'text-3xl font-black text-emerald-400';
+        subtitle.innerText = `+${res.points.toLocaleString()} pontos`;
+
+        if (myInfo.streak > 1) {
+          streakEl.innerText = `🔥 Sequência de ${myInfo.streak} acertos!`;
+          streakEl.classList.remove('hidden');
+        } else {
+          streakEl.classList.add('hidden');
+        }
+        confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+      } else if (res && !res.is_correct) {
+        iconBox.className = 'w-24 h-24 rounded-3xl flex items-center justify-center text-5xl shadow-2xl bg-rose-500/20 border-2 border-rose-400 text-rose-400';
+        iconBox.innerText = '❌';
+        title.innerText = 'Ops, errou!';
+        title.className = 'text-3xl font-black text-rose-400';
+        subtitle.innerText = '+0 pontos';
+        streakEl.classList.add('hidden');
+      } else {
+        // Did not answer in time
+        iconBox.className = 'w-24 h-24 rounded-3xl flex items-center justify-center text-5xl shadow-2xl bg-slate-800 border-2 border-slate-600 text-slate-400';
+        iconBox.innerText = '⏱️';
+        title.innerText = 'Tempo Esgotado!';
+        title.className = 'text-3xl font-black text-slate-300';
+        subtitle.innerText = 'Você não enviou resposta a tempo';
+        streakEl.classList.add('hidden');
+      }
+    }
+
+    window.onload = () => {
+      initWS();
+    };
+  </script>
+</body>
+</html>

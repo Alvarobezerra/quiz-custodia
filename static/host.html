@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Interativo - Painel do Apresentador</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- QRCode.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <!-- Google Fonts Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Outfit', sans-serif;
+      user-select: none;
+    }
+    .pulse-glow {
+      box-shadow: 0 0 25px rgba(99, 102, 241, 0.45);
+    }
+    @keyframes barRise {
+      from { height: 0%; }
+      to { height: var(--target-height); }
+    }
+    .animate-bar {
+      animation: barRise 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+
+  <!-- Top Bar -->
+  <header class="w-full px-6 py-4 flex items-center justify-between border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-black text-xl shadow-lg shadow-indigo-500/30">
+        ⚡
+      </div>
+      <div>
+        <h1 class="text-xl font-black tracking-tight bg-gradient-to-r from-white via-slate-200 to-indigo-300 bg-clip-text text-transparent">
+          QUIZ AO VIVO
+        </h1>
+        <p class="text-xs text-slate-400 font-medium" id="headerSubtitle">Apresentação Interativa</p>
+      </div>
+    </div>
+
+    <!-- Right Controls -->
+    <div class="flex items-center gap-2.5">
+      <!-- Restart Quiz Button (Always Visible) -->
+      <button onclick="openRestartModal()" class="px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 transition flex items-center gap-1.5 text-sm font-semibold border border-rose-500/30" title="Opções de reinício a qualquer momento">
+        <span>🔄</span> Reiniciar Quiz
+      </button>
+
+      <!-- Sound Toggle -->
+      <button id="soundToggleBtn" onclick="toggleSound()" class="px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition flex items-center gap-2 text-sm font-semibold border border-slate-700">
+        <span id="soundIcon">🔊</span> Som Ativo
+      </button>
+
+      <!-- Manage Questions Button -->
+      <button onclick="openQuestionModal()" class="px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition flex items-center gap-2 text-sm font-semibold border border-slate-700">
+        ⚙️ Perguntas (<span id="totalQuestionsCount">0</span>)
+      </button>
+
+      <!-- Fullscreen -->
+      <button onclick="toggleFullscreen()" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition border border-slate-700" title="Tela Cheia">
+        ⛶
+      </button>
+    </div>
+  </header>
+
+  <!-- Main View Area -->
+  <main id="mainContainer" class="flex-1 max-w-7xl w-full mx-auto p-6 flex flex-col justify-center items-center">
+
+    <!-- ================= 1. LOBBY VIEW ================= -->
+    <div id="viewLobby" class="w-full flex flex-col items-center justify-center gap-8 py-6">
+      <div class="text-center max-w-2xl">
+        <span class="inline-block px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-bold text-sm mb-3">
+          SALA ABERTA
+        </span>
+        <h2 class="text-4xl md:text-5xl font-black text-white tracking-tight">
+          Aponte a câmera do seu celular!
+        </h2>
+        <p class="text-slate-400 text-lg mt-2">
+          Escaneie o QR Code abaixo ou acesse o link para entrar no quiz:
+        </p>
+        <div class="inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-xl bg-slate-900 border border-slate-700">
+          <span class="text-xs text-slate-400">Link direto:</span>
+          <span id="lobbyDirectUrl" class="font-mono text-indigo-400 font-bold text-sm">carregando...</span>
+          <button onclick="copyJoinLink()" class="ml-2 text-xs text-slate-300 hover:text-white underline">Copiar</button>
+        </div>
+      </div>
+
+      <!-- QR Code Box -->
+      <div class="relative group">
+        <div class="absolute -inset-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl blur-xl opacity-60 group-hover:opacity-100 transition duration-500"></div>
+        <div class="relative bg-white p-6 rounded-2xl shadow-2xl flex flex-col items-center justify-center">
+          <div id="qrcodeCanvas"></div>
+          <p class="text-slate-800 font-bold text-sm mt-3 tracking-wide flex items-center gap-1.5">
+            📱 Conecte-se agora
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick URL changer if needed -->
+      <div class="flex items-center gap-2 text-xs text-slate-400">
+        <span>URL do QR Code:</span>
+        <input id="customQrUrlInput" type="text" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-indigo-300 font-mono text-xs w-64 md:w-80 outline-none" onchange="updateCustomQr(this.value)">
+      </div>
+
+      <!-- Connected Players List -->
+      <div class="w-full max-w-4xl bg-slate-900/60 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></span>
+            <h3 class="text-lg font-bold text-slate-200">
+              Participantes Conectados: <span id="lobbyPlayerCount" class="text-indigo-400 font-black">0</span>
+            </h3>
+          </div>
+          <div class="flex items-center gap-3">
+            <button onclick="clearAllPlayers()" class="text-xs text-rose-400 hover:text-rose-300 font-bold px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 transition hover:bg-rose-500/20">
+              🧹 Limpar Participantes
+            </button>
+            <span class="text-xs text-slate-500">Aguardando todos entrarem...</span>
+          </div>
+        </div>
+
+        <div id="lobbyPlayersList" class="flex flex-wrap gap-2.5 min-h-[90px] max-h-48 overflow-y-auto p-1 items-center justify-center">
+          <p class="text-slate-500 text-sm italic">Nenhum participante entrou ainda. O primeiro a entrar aparecerá aqui!</p>
+        </div>
+      </div>
+
+      <!-- Start Button -->
+      <button onclick="startGame()" class="px-10 py-5 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black text-2xl tracking-wide shadow-xl shadow-indigo-500/25 transition transform hover:scale-105 active:scale-95 flex items-center gap-3">
+        <span>🚀 Iniciar Quiz</span>
+      </button>
+    </div>
+
+    <!-- ================= 2. QUESTION & REVEAL VIEW ================= -->
+    <div id="viewQuestion" class="w-full flex-col hidden gap-6 max-w-5xl">
+      <!-- Top info bar -->
+      <div class="flex items-center justify-between bg-slate-900/80 border border-slate-800 px-6 py-3.5 rounded-2xl">
+        <div class="flex items-center gap-3">
+          <span class="px-3.5 py-1 rounded-xl bg-indigo-500/20 text-indigo-400 font-black text-sm border border-indigo-500/30" id="questionBadge">
+            Pergunta 1 de 4
+          </span>
+          <span class="text-slate-400 text-sm font-semibold flex items-center gap-1.5">
+            👥 <span id="answeredRatio" class="text-white font-bold">0 / 0</span> responderam
+          </span>
+        </div>
+
+        <!-- Timer Circular / Digital -->
+        <div class="flex items-center gap-3">
+          <div id="timerContainer" class="w-14 h-14 rounded-full bg-slate-800 border-2 border-indigo-500 flex items-center justify-center font-black text-2xl text-white shadow-lg">
+            <span id="timerText">20</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question Text Banner -->
+      <div class="bg-gradient-to-b from-slate-900 to-slate-900/90 border border-slate-800 rounded-3xl p-8 md:p-10 shadow-2xl text-center min-h-[140px] flex items-center justify-center">
+        <h2 id="questionTitle" class="text-2xl md:text-4xl font-extrabold text-white leading-tight">
+          Pergunta do Quiz
+        </h2>
+      </div>
+
+      <!-- WORD CLOUD CONTAINER (Active for WORDCLOUD question type) -->
+      <div id="wordCloudSection" class="hidden w-full flex-col items-center justify-center min-h-[380px] bg-slate-900/60 border border-slate-800 rounded-3xl p-8 backdrop-blur-md relative overflow-hidden">
+        <div class="absolute top-4 left-6 flex items-center gap-2 text-xs font-bold text-indigo-400 uppercase tracking-widest">
+          <span class="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-ping"></span>
+          ☁️ Chuva de Palavras em Tempo Real
+        </div>
+        <div class="absolute top-4 right-6 text-xs text-slate-400 font-semibold">
+          <span id="wordCloudTotalCount" class="text-white font-bold">0</span> palavras enviadas
+        </div>
+
+        <!-- Dynamic Cloud Canvas / Tag Flexbox -->
+        <div id="wordCloudTags" class="flex flex-wrap items-center justify-center gap-4 max-w-4xl w-full py-8 min-h-[260px]">
+          <p id="wordCloudEmptyPrompt" class="text-slate-500 text-lg font-medium italic animate-pulse">
+            Aguardando os participantes enviarem suas palavras pelo celular...
+          </p>
+        </div>
+      </div>
+
+      <!-- Dynamic Response Bars & Option Cards (Active for CHOICE question type) -->
+      <div id="optionsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <!-- Option 0: Red -->
+        <div id="optionCard0" class="relative overflow-hidden rounded-2xl p-6 bg-rose-600/20 border-2 border-rose-500/50 flex flex-col justify-between min-h-[120px] transition-all duration-300">
+          <div class="flex items-start justify-between relative z-10">
+            <div class="flex items-center gap-3">
+              <span class="w-10 h-10 rounded-xl bg-rose-500 text-white font-black text-lg flex items-center justify-center shadow">▲</span>
+              <span id="optionText0" class="text-xl font-bold text-white">Opção A</span>
+            </div>
+            <span id="optionVoteCount0" class="text-2xl font-black text-white/90 hidden">0</span>
+          </div>
+          <!-- Animated Bar on Reveal -->
+          <div id="optionBar0" class="absolute bottom-0 left-0 right-0 bg-rose-600/40 h-0 transition-all duration-700 ease-out z-0"></div>
+        </div>
+
+        <!-- Option 1: Blue -->
+        <div id="optionCard1" class="relative overflow-hidden rounded-2xl p-6 bg-blue-600/20 border-2 border-blue-500/50 flex flex-col justify-between min-h-[120px] transition-all duration-300">
+          <div class="flex items-start justify-between relative z-10">
+            <div class="flex items-center gap-3">
+              <span class="w-10 h-10 rounded-xl bg-blue-500 text-white font-black text-lg flex items-center justify-center shadow">◆</span>
+              <span id="optionText1" class="text-xl font-bold text-white">Opção B</span>
+            </div>
+            <span id="optionVoteCount1" class="text-2xl font-black text-white/90 hidden">0</span>
+          </div>
+          <div id="optionBar1" class="absolute bottom-0 left-0 right-0 bg-blue-600/40 h-0 transition-all duration-700 ease-out z-0"></div>
+        </div>
+
+        <!-- Option 2: Amber/Yellow -->
+        <div id="optionCard2" class="relative overflow-hidden rounded-2xl p-6 bg-amber-600/20 border-2 border-amber-500/50 flex flex-col justify-between min-h-[120px] transition-all duration-300">
+          <div class="flex items-start justify-between relative z-10">
+            <div class="flex items-center gap-3">
+              <span class="w-10 h-10 rounded-xl bg-amber-500 text-slate-900 font-black text-lg flex items-center justify-center shadow">●</span>
+              <span id="optionText2" class="text-xl font-bold text-white">Opção C</span>
+            </div>
+            <span id="optionVoteCount2" class="text-2xl font-black text-white/90 hidden">0</span>
+          </div>
+          <div id="optionBar2" class="absolute bottom-0 left-0 right-0 bg-amber-600/40 h-0 transition-all duration-700 ease-out z-0"></div>
+        </div>
+
+        <!-- Option 3: Emerald/Green -->
+        <div id="optionCard3" class="relative overflow-hidden rounded-2xl p-6 bg-emerald-600/20 border-2 border-emerald-500/50 flex flex-col justify-between min-h-[120px] transition-all duration-300">
+          <div class="flex items-start justify-between relative z-10">
+            <div class="flex items-center gap-3">
+              <span class="w-10 h-10 rounded-xl bg-emerald-500 text-white font-black text-lg flex items-center justify-center shadow">■</span>
+              <span id="optionText3" class="text-xl font-bold text-white">Opção D</span>
+            </div>
+            <span id="optionVoteCount3" class="text-2xl font-black text-white/90 hidden">0</span>
+          </div>
+          <div id="optionBar3" class="absolute bottom-0 left-0 right-0 bg-emerald-600/40 h-0 transition-all duration-700 ease-out z-0"></div>
+        </div>
+      </div>
+
+      <!-- Presenter Action Controls -->
+      <div class="flex items-center justify-center gap-4 mt-2">
+        <button id="btnSkipTimer" onclick="revealAnswer()" class="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold transition flex items-center gap-2 border border-slate-700">
+          ⏱️ Encerrar Tempo / Revelar Resposta
+        </button>
+        <button id="btnShowLeaderboard" onclick="showLeaderboard()" class="hidden px-8 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-lg shadow-lg shadow-indigo-600/30 transition transform hover:scale-105 flex items-center gap-2">
+          📊 Ver Placar do Ranking ➡️
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= 3. LEADERBOARD VIEW ================= -->
+    <div id="viewLeaderboard" class="w-full flex-col hidden gap-6 max-w-3xl py-4">
+      <div class="text-center">
+        <span class="px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 font-bold text-sm">
+          CLASSIFICAÇÃO PARCIAL
+        </span>
+        <h2 class="text-4xl font-black text-white mt-2">Top Participantes 🔥</h2>
+      </div>
+
+      <div id="leaderboardList" class="flex flex-col gap-3 w-full">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="flex justify-center mt-4">
+        <button id="btnNextQuestion" onclick="nextQuestion()" class="px-10 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black text-xl shadow-xl shadow-indigo-500/25 transition transform hover:scale-105 flex items-center gap-2">
+          <span>Próxima Pergunta ➡️</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= 4. PODIUM VIEW ================= -->
+    <div id="viewPodium" class="w-full flex-col hidden items-center justify-center gap-8 py-6">
+      <div class="text-center">
+        <span class="px-5 py-2 rounded-full bg-yellow-500/20 border border-yellow-500/40 text-yellow-300 font-black text-base">
+          🏆 PÓDIO DOS CAMPEÕES 🏆
+        </span>
+        <h2 class="text-5xl font-black text-white mt-3 tracking-tight">Parabéns aos Vencedores!</h2>
+      </div>
+
+      <!-- Podium 3D Columns -->
+      <div class="flex items-end justify-center gap-4 md:gap-8 w-full max-w-3xl pt-12 pb-6 min-h-[360px]">
+        
+        <!-- 2nd Place (Silver) -->
+        <div id="podium2" class="flex-1 flex flex-col items-center">
+          <div class="text-3xl mb-2">🥈</div>
+          <p id="podium2Name" class="font-bold text-slate-200 text-lg mb-1 truncate max-w-[120px] md:max-w-[160px] text-center">-</p>
+          <span id="podium2Score" class="text-xs text-indigo-300 font-extrabold mb-2">0 pts</span>
+          <div class="w-full bg-gradient-to-b from-slate-400 to-slate-600 rounded-t-2xl flex flex-col items-center justify-start pt-4 shadow-xl border-t-2 border-slate-300 h-44">
+            <span class="text-4xl font-black text-slate-900/60">2</span>
+          </div>
+        </div>
+
+        <!-- 1st Place (Gold) -->
+        <div id="podium1" class="flex-1 flex flex-col items-center">
+          <div class="text-5xl mb-2 animate-bounce">👑</div>
+          <p id="podium1Name" class="font-black text-yellow-300 text-xl md:text-2xl mb-1 truncate max-w-[140px] md:max-w-[200px] text-center">-</p>
+          <span id="podium1Score" class="text-sm text-yellow-400 font-black mb-2">0 pts</span>
+          <div class="w-full bg-gradient-to-b from-amber-400 to-yellow-600 rounded-t-2xl flex flex-col items-center justify-start pt-4 shadow-2xl border-t-2 border-yellow-200 h-64 relative">
+            <span class="text-6xl font-black text-yellow-950/40">1</span>
+          </div>
+        </div>
+
+        <!-- 3rd Place (Bronze) -->
+        <div id="podium3" class="flex-1 flex flex-col items-center">
+          <div class="text-3xl mb-2">🥉</div>
+          <p id="podium3Name" class="font-bold text-amber-600 text-lg mb-1 truncate max-w-[120px] md:max-w-[160px] text-center">-</p>
+          <span id="podium3Score" class="text-xs text-amber-500 font-extrabold mb-2">0 pts</span>
+          <div class="w-full bg-gradient-to-b from-amber-700 to-amber-900 rounded-t-2xl flex flex-col items-center justify-start pt-4 shadow-xl border-t-2 border-amber-500 h-32">
+            <span class="text-4xl font-black text-amber-950/60">3</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-4">
+        <button onclick="resetGame()" class="px-8 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold transition border border-slate-700 flex items-center gap-2">
+          🔄 Jogar Novamente
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full py-3 px-6 border-t border-slate-900 text-center text-xs text-slate-500 flex justify-between items-center">
+    <span>Quiz Interativo em Tempo Real</span>
+    <span id="wsStatus" class="flex items-center gap-1.5 text-emerald-400">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Conectado
+    </span>
+  </footer>
+
+  <!-- ================= MODAL: EDIT QUESTIONS ================= -->
+  <div id="questionModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl">
+      <div class="p-6 border-b border-slate-800 flex justify-between items-center">
+        <h3 class="text-xl font-bold text-white flex items-center gap-2">
+          ⚙️ Gerenciar Perguntas do Quiz
+        </h3>
+        <button onclick="closeQuestionModal()" class="text-slate-400 hover:text-white text-2xl font-bold">&times;</button>
+      </div>
+
+      <div id="modalQuestionsList" class="p-6 overflow-y-auto flex-1 flex flex-col gap-6">
+        <!-- Rendered in JS -->
+      </div>
+
+      <div class="p-4 border-t border-slate-800 flex justify-between items-center bg-slate-950/60 rounded-b-3xl">
+        <button onclick="addNewQuestionDraft()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 font-bold text-sm border border-slate-700">
+          ➕ Adicionar Nova Pergunta
+        </button>
+        <div class="flex gap-3">
+          <button onclick="closeQuestionModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold text-sm">
+            Cancelar
+          </button>
+          <button onclick="saveQuestionsFromModal()" class="px-6 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow">
+            Salvar Alterações
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: RESTART CONTROLS ================= -->
+  <div id="restartModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 animate-fade-in">
+    <div class="bg-slate-900 border-2 border-slate-700 rounded-3xl w-full max-w-md p-6 flex flex-col gap-5 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center font-black text-lg">
+            🔄
+          </div>
+          <h3 class="text-lg font-black text-white">Opções de Reinício</h3>
+        </div>
+        <button onclick="closeRestartModal()" class="text-slate-400 hover:text-white text-2xl font-bold">&times;</button>
+      </div>
+
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Você pode reiniciar o quiz a qualquer momento durante a apresentação. Escolha uma das opções abaixo:
+      </p>
+
+      <div class="flex flex-col gap-3">
+        <!-- Option 1: Restart from Question 1 (Keep Players) -->
+        <button onclick="actionRestartToQ1()" class="p-4 rounded-2xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-left transition group">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">🎯</span>
+            <span class="font-bold text-indigo-200 group-hover:text-white text-sm">Voltar para a Pergunta 1</span>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1 pl-7">
+            Zera as pontuações e reinicia o quiz do começo. <strong>Os alunos continuam conectados</strong> sem precisar ler o QR Code de novo!
+          </p>
+        </button>
+
+        <!-- Option 2: Back to Lobby (Keep Players) -->
+        <button onclick="actionResetToLobby()" class="p-4 rounded-2xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-left transition group">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">🏠</span>
+            <span class="font-bold text-slate-200 group-hover:text-white text-sm">Voltar para a Sala de Espera (Lobby)</span>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1 pl-7">
+            Mostra o QR Code novamente no telão para que <strong>alunos atrasados possam entrar</strong>. Mantém os alunos que já estavam na sala.
+          </p>
+        </button>
+
+        <!-- Option 3: Reset Everything and Clear Players -->
+        <button onclick="actionClearAllAndReset()" class="p-3.5 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-left transition group">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">🧹</span>
+            <span class="font-bold text-rose-300 group-hover:text-rose-200 text-sm">Zerar Tudo e Limpar Sala</span>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1 pl-7">
+            Desconecta todos os alunos e retorna ao Lobby totalmente limpo (zero participantes).
+          </p>
+        </button>
+      </div>
+
+      <div class="flex justify-end pt-2">
+        <button onclick="closeRestartModal()" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT -->
+  <script>
+    let ws;
+    let gameState = null;
+    let soundEnabled = true;
+    let audioCtx = null;
+    let questionsCache = [];
+
+    // --- Web Audio Synthesizer (Zero External Files Needed) ---
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playTone(freq, type, duration, delay = 0) {
+      if (!soundEnabled) return;
+      try {
+        initAudio();
+        setTimeout(() => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + duration);
+        }, delay * 1000);
+      } catch (e) {}
+    }
+
+    function soundTick() {
+      playTone(600, 'sine', 0.08);
+    }
+
+    function soundDing() {
+      playTone(523.25, 'triangle', 0.2, 0);
+      playTone(659.25, 'triangle', 0.3, 0.1);
+      playTone(783.99, 'triangle', 0.4, 0.2);
+    }
+
+    function soundFanfare() {
+      playTone(523.25, 'square', 0.2, 0);
+      playTone(659.25, 'square', 0.2, 0.15);
+      playTone(783.99, 'square', 0.2, 0.3);
+      playTone(1046.50, 'square', 0.6, 0.45);
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('soundIcon').innerText = soundEnabled ? '🔊' : '🔇';
+      document.getElementById('soundToggleBtn').classList.toggle('text-rose-400', !soundEnabled);
+      if (soundEnabled) initAudio();
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // --- WebSocket Connection ---
+    function connectWS() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        document.getElementById('wsStatus').innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Conectado';
+        ws.send(JSON.stringify({ type: 'HOST_JOIN' }));
+      };
+
+      ws.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        if (msg.type === 'STATE_UPDATE') {
+          handleStateUpdate(msg.data);
+        } else if (msg.type === 'TICK') {
+          updateTick(msg);
+        }
+      };
+
+      ws.onclose = () => {
+        document.getElementById('wsStatus').innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span> Reconectando...';
+        setTimeout(connectWS, 2000);
+      };
+    }
+
+    // --- Render Views Based on State ---
+    let currentJoinUrl = '';
+    function handleStateUpdate(data) {
+      gameState = data;
+      const prevTotalQ = document.getElementById('totalQuestionsCount').innerText;
+      document.getElementById('totalQuestionsCount').innerText = data.total_questions || 0;
+
+      // Update Lobby QR Code & Links
+      if (!currentJoinUrl) {
+        currentJoinUrl = `${window.location.origin}/`;
+      }
+      document.getElementById('lobbyDirectUrl').innerText = currentJoinUrl;
+      const inputEl = document.getElementById('customQrUrlInput');
+      if (inputEl && !inputEl.value) {
+        inputEl.value = currentJoinUrl;
+      }
+      renderQRCode(currentJoinUrl);
+
+      // Views Toggle
+      const vLobby = document.getElementById('viewLobby');
+      const vQuestion = document.getElementById('viewQuestion');
+      const vLeaderboard = document.getElementById('viewLeaderboard');
+      const vPodium = document.getElementById('viewPodium');
+
+      vLobby.classList.add('hidden');
+      vQuestion.classList.add('hidden');
+      vLeaderboard.classList.add('hidden');
+      vPodium.classList.add('hidden');
+
+      if (data.state === 'LOBBY') {
+        vLobby.classList.remove('hidden');
+        renderLobby(data);
+      } else if (data.state === 'QUESTION') {
+        vQuestion.classList.remove('hidden');
+        renderQuestion(data, false);
+      } else if (data.state === 'REVEAL') {
+        vQuestion.classList.remove('hidden');
+        renderQuestion(data, true);
+      } else if (data.state === 'LEADERBOARD') {
+        vLeaderboard.classList.remove('hidden');
+        renderLeaderboard(data);
+      } else if (data.state === 'PODIUM') {
+        vPodium.classList.remove('hidden');
+        renderPodium(data);
+      }
+    }
+
+    let qrInstance = null;
+    function renderQRCode(url) {
+      const container = document.getElementById('qrcodeCanvas');
+      container.innerHTML = '';
+      qrInstance = new QRCode(container, {
+        text: url,
+        width: 210,
+        height: 210,
+        colorDark: "#0f172a",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    function updateCustomQr(val) {
+      if (!val) return;
+      if (!val.startsWith('http')) {
+        val = 'https://' + val;
+      }
+      currentJoinUrl = val;
+      document.getElementById('lobbyDirectUrl').innerText = currentJoinUrl;
+      renderQRCode(currentJoinUrl);
+    }
+
+    function copyJoinLink() {
+      navigator.clipboard.writeText(currentJoinUrl || `${window.location.origin}/`);
+      alert('Link do quiz copiado para a área de transferência!');
+    }
+
+    // --- Lobby Render ---
+    function renderLobby(data) {
+      const players = data.players || [];
+      document.getElementById('lobbyPlayerCount').innerText = players.length;
+      const listEl = document.getElementById('lobbyPlayersList');
+
+      if (players.length === 0) {
+        listEl.innerHTML = '<p class="text-slate-500 text-sm italic">Nenhum participante entrou ainda. O primeiro a entrar aparecerá aqui!</p>';
+        return;
+      }
+
+      const colors = ['bg-rose-500', 'bg-blue-500', 'bg-emerald-500', 'bg-amber-500', 'bg-purple-500', 'bg-indigo-500', 'bg-cyan-500', 'bg-pink-500'];
+      listEl.innerHTML = players.map((p, i) => `
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full ${colors[i % colors.length]} text-white font-bold text-sm shadow-md animate-fade-in group">
+          <span>👤</span> ${p.name}
+          <button onclick="kickPlayer('${p.id}')" title="Remover este participante" class="ml-1 text-white/60 hover:text-white font-black text-xs px-1 rounded hover:bg-black/20">&times;</button>
+        </span>
+      `).join('');
+    }
+
+    function clearAllPlayers() {
+      if (confirm('Deseja remover todos os participantes da sala para começar do zero com sua turma?')) {
+        ws.send(JSON.stringify({ type: 'CLEAR_PLAYERS' }));
+      }
+    }
+
+    function kickPlayer(playerId) {
+      ws.send(JSON.stringify({ type: 'KICK_PLAYER', player_id: playerId }));
+    }
+
+    // --- Question & Reveal Render ---
+    function renderQuestion(data, isReveal) {
+      const q = data.question;
+      if (!q) return;
+
+      const qType = q.type || 'CHOICE';
+      const typeLabel = qType === 'WORDCLOUD' ? '☁️ Chuva de Palavras' : '🎯 Múltipla Escolha';
+      document.getElementById('questionBadge').innerText = `${typeLabel} • ${q.index + 1} de ${q.total}`;
+      document.getElementById('questionTitle').innerText = q.question;
+      document.getElementById('timerText').innerText = data.time_left;
+      document.getElementById('answeredRatio').innerText = `${data.answered_count} / ${data.total_players}`;
+
+      const btnSkip = document.getElementById('btnSkipTimer');
+      const btnNext = document.getElementById('btnShowLeaderboard');
+      const sectionWordCloud = document.getElementById('wordCloudSection');
+      const gridOptions = document.getElementById('optionsGrid');
+
+      if (!isReveal) {
+        btnSkip.classList.remove('hidden');
+        btnNext.classList.add('hidden');
+      } else {
+        btnSkip.classList.add('hidden');
+        btnNext.classList.remove('hidden');
+      }
+
+      if (qType === 'WORDCLOUD') {
+        gridOptions.style.display = 'none';
+        sectionWordCloud.style.display = 'flex';
+        gridOptions.classList.add('hidden');
+        sectionWordCloud.classList.remove('hidden');
+        renderWordCloud(data.distribution || []);
+      } else {
+        sectionWordCloud.style.display = 'none';
+        gridOptions.style.display = 'grid';
+        sectionWordCloud.classList.add('hidden');
+        gridOptions.classList.remove('hidden');
+
+        const options = q.options || [];
+        const distribution = data.distribution || [0, 0, 0, 0];
+        const maxVotes = Math.max(...distribution, 1);
+
+        for (let i = 0; i < 4; i++) {
+          const textEl = document.getElementById(`optionText${i}`);
+          const cardEl = document.getElementById(`optionCard${i}`);
+          const barEl = document.getElementById(`optionBar${i}`);
+          const countEl = document.getElementById(`optionVoteCount${i}`);
+
+          if (i < options.length) {
+            cardEl.classList.remove('hidden');
+            cardEl.classList.toggle('md:col-span-2', options.length === 3 && i === 2);
+            textEl.innerText = options[i];
+            const votes = distribution[i] || 0;
+            countEl.innerText = `${votes} voto${votes === 1 ? '' : 's'}`;
+
+            if (isReveal) {
+              countEl.classList.remove('hidden');
+              const percent = Math.round((votes / maxVotes) * 100);
+              barEl.style.height = `${percent}%`;
+
+              if (i === q.correctIndex) {
+                cardEl.classList.add('border-emerald-400', 'pulse-glow');
+                cardEl.classList.remove('opacity-40');
+              } else {
+                cardEl.classList.add('opacity-40');
+                cardEl.classList.remove('border-emerald-400', 'pulse-glow');
+              }
+            } else {
+              countEl.classList.add('hidden');
+              barEl.style.height = '0%';
+              cardEl.classList.remove('opacity-40', 'border-emerald-400', 'pulse-glow');
+            }
+          } else {
+            cardEl.classList.add('hidden');
+          }
+        }
+      }
+
+      if (isReveal) {
+        soundDing();
+        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+      }
+    }
+
+    // --- Dynamic Word Cloud Render ---
+    const cloudGradients = [
+      'from-indigo-400 to-purple-400 text-indigo-100 border-indigo-400/40 bg-indigo-500/10 shadow-indigo-500/20',
+      'from-emerald-400 to-teal-300 text-emerald-100 border-emerald-400/40 bg-emerald-500/10 shadow-emerald-500/20',
+      'from-amber-300 to-yellow-400 text-yellow-100 border-amber-400/40 bg-amber-500/10 shadow-amber-500/20',
+      'from-rose-400 to-pink-400 text-pink-100 border-rose-400/40 bg-rose-500/10 shadow-rose-500/20',
+      'from-cyan-400 to-sky-300 text-cyan-100 border-cyan-400/40 bg-cyan-500/10 shadow-cyan-500/20',
+      'from-fuchsia-400 to-violet-400 text-fuchsia-100 border-fuchsia-400/40 bg-fuchsia-500/10 shadow-fuchsia-500/20'
+    ];
+
+    function renderWordCloud(wordList) {
+      const container = document.getElementById('wordCloudTags');
+      const totalCountEl = document.getElementById('wordCloudTotalCount');
+
+      if (!wordList || wordList.length === 0) {
+        totalCountEl.innerText = '0';
+        container.innerHTML = '<p class="text-slate-500 text-lg font-medium italic animate-pulse">Aguardando os participantes enviarem suas palavras pelo celular...</p>';
+        return;
+      }
+
+      const totalWords = wordList.reduce((acc, curr) => acc + curr.count, 0);
+      totalCountEl.innerText = totalWords;
+
+      const maxCount = Math.max(...wordList.map(w => w.count), 1);
+      const minCount = Math.min(...wordList.map(w => w.count), 1);
+
+      // Limit display to top 50 terms to keep projector visual ultra-sharp
+      const displayWords = wordList.slice(0, 50);
+
+      container.innerHTML = displayWords.map((item, idx) => {
+        // Logarithmic or smooth linear scaling for large audiences (up to 300 people)
+        const weight = maxCount === minCount ? 0.5 : (item.count - minCount) / (maxCount - minCount);
+        const fontSizeRem = (1.2 + (weight * 2.8)).toFixed(2); // 1.2rem to 4.0rem!
+        const gradientClass = cloudGradients[idx % cloudGradients.length];
+        const isTop = (idx === 0 && item.count > 1);
+
+        return `
+          <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-3xl border ${gradientClass} backdrop-blur-md shadow-lg transition-all duration-500 transform hover:scale-110 cursor-default animate-fade-in ${isTop ? 'ring-4 ring-yellow-400/40 shadow-yellow-500/30' : ''}" style="font-size: ${fontSizeRem}rem; line-height: 1.15;">
+            <span class="font-black tracking-tight">${item.word}</span>
+            ${item.count > 1 ? `<span class="text-xs px-2.5 py-0.5 rounded-full bg-black/30 font-black backdrop-blur-sm border border-white/20">${item.count}</span>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateTick(msg) {
+      const timerEl = document.getElementById('timerText');
+      if (timerEl) {
+        timerEl.innerText = msg.time_left;
+        if (msg.time_left <= 5 && msg.time_left > 0) {
+          soundTick();
+        }
+      }
+      const ratioEl = document.getElementById('answeredRatio');
+      if (ratioEl) {
+        ratioEl.innerText = `${msg.answered_count} / ${msg.total_players}`;
+      }
+    }
+
+    // --- Leaderboard Render ---
+    function renderLeaderboard(data) {
+      soundFanfare();
+      const listEl = document.getElementById('leaderboardList');
+      const leaderboard = (data.leaderboard || []).slice(0, 5);
+
+      if (leaderboard.length === 0) {
+        listEl.innerHTML = '<p class="text-slate-500 text-center">Nenhuma pontuação registrada ainda.</p>';
+        return;
+      }
+
+      listEl.innerHTML = leaderboard.map((p, idx) => {
+        let badgeColor = 'bg-slate-800 text-slate-300';
+        let medal = `#${idx + 1}`;
+        if (idx === 0) { badgeColor = 'bg-amber-500 text-slate-950 font-black'; medal = '🥇 1º'; }
+        else if (idx === 1) { badgeColor = 'bg-slate-300 text-slate-950 font-black'; medal = '🥈 2º'; }
+        else if (idx === 2) { badgeColor = 'bg-amber-700 text-white font-black'; medal = '🥉 3º'; }
+
+        return `
+          <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-md transform hover:scale-[1.01] transition">
+            <div class="flex items-center gap-4">
+              <span class="px-3 py-1.5 rounded-xl ${badgeColor} text-sm">
+                ${medal}
+              </span>
+              <span class="text-xl font-bold text-white">${p.name}</span>
+              ${p.streak > 1 ? `<span class="text-xs px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 font-bold border border-orange-500/30">🔥 ${p.streak} seguidas</span>` : ''}
+            </div>
+            <span class="text-2xl font-black text-indigo-400">${p.score.toLocaleString()} <span class="text-xs text-slate-500">pts</span></span>
+          </div>
+        `;
+      }).join('');
+
+      // Check if next is podium or next question
+      const isLastQ = data.current_q_index + 1 >= data.total_questions;
+      const btnNextQ = document.getElementById('btnNextQuestion');
+      if (isLastQ) {
+        btnNextQ.innerHTML = '<span>🏆 Ver Pódio Final! 🏆</span>';
+        btnNextQ.onclick = showPodium;
+      } else {
+        btnNextQ.innerHTML = '<span>Próxima Pergunta ➡️</span>';
+        btnNextQ.onclick = nextQuestion;
+      }
+    }
+
+    // --- Podium Render ---
+    function renderPodium(data) {
+      soundFanfare();
+      const lb = data.leaderboard || [];
+      const p1 = lb[0] || { name: '-', score: 0 };
+      const p2 = lb[1] || { name: '-', score: 0 };
+      const p3 = lb[2] || { name: '-', score: 0 };
+
+      document.getElementById('podium1Name').innerText = p1.name;
+      document.getElementById('podium1Score').innerText = `${p1.score.toLocaleString()} pts`;
+
+      document.getElementById('podium2Name').innerText = p2.name;
+      document.getElementById('podium2Score').innerText = `${p2.score.toLocaleString()} pts`;
+
+      document.getElementById('podium3Name').innerText = p3.name;
+      document.getElementById('podium3Score').innerText = `${p3.score.toLocaleString()} pts`;
+
+      // Confetti shower
+      let duration = 4 * 1000;
+      let end = Date.now() + duration;
+      (function frame() {
+        confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
+        confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      }());
+    }
+
+    // --- Presenter Action Commands ---
+    function startGame() {
+      initAudio();
+      ws.send(JSON.stringify({ type: 'START_GAME' }));
+    }
+
+    function revealAnswer() {
+      ws.send(JSON.stringify({ type: 'REVEAL_ANSWER' }));
+    }
+
+    function showLeaderboard() {
+      ws.send(JSON.stringify({ type: 'SHOW_LEADERBOARD' }));
+    }
+
+    function nextQuestion() {
+      ws.send(JSON.stringify({ type: 'NEXT_QUESTION' }));
+    }
+
+    function showPodium() {
+      ws.send(JSON.stringify({ type: 'SHOW_PODIUM' }));
+    }
+
+    function resetGame() {
+      openRestartModal();
+    }
+
+    function openRestartModal() {
+      document.getElementById('restartModal').classList.remove('hidden');
+    }
+
+    function closeRestartModal() {
+      document.getElementById('restartModal').classList.add('hidden');
+    }
+
+    function actionRestartToQ1() {
+      if (confirm('Reiniciar o quiz a partir da Pergunta 1? (Os alunos continuarão conectados)')) {
+        ws.send(JSON.stringify({ type: 'RESTART_TO_QUESTION_1' }));
+        closeRestartModal();
+      }
+    }
+
+    function actionResetToLobby() {
+      if (confirm('Voltar para a tela do QR Code / Sala de Espera? (Os alunos continuarão conectados)')) {
+        ws.send(JSON.stringify({ type: 'RESET_GAME', clear_players: false }));
+        closeRestartModal();
+      }
+    }
+
+    function actionClearAllAndReset() {
+      if (confirm('Tem certeza? Isso desconectará todos os alunos e limpará a sala.')) {
+        ws.send(JSON.stringify({ type: 'CLEAR_PLAYERS' }));
+        closeRestartModal();
+      }
+    }
+
+    // --- Question Modal & Editor ---
+    async function openQuestionModal() {
+      const res = await fetch('/api/questions');
+      questionsCache = await res.json();
+      renderModalQuestions();
+      document.getElementById('questionModal').classList.remove('hidden');
+    }
+
+    function closeQuestionModal() {
+      document.getElementById('questionModal').classList.add('hidden');
+    }
+
+    function renderModalQuestions() {
+      const container = document.getElementById('modalQuestionsList');
+      container.innerHTML = questionsCache.map((q, idx) => {
+        const isCloud = (q.type === 'WORDCLOUD');
+        return `
+          <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 flex flex-col gap-3">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-bold text-indigo-400">Pergunta #${idx + 1}</span>
+                <select onchange="changeQuestionType(${idx}, this.value)" class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-white outline-none">
+                  <option value="CHOICE" ${!isCloud ? 'selected' : ''}>🎯 Múltipla Escolha</option>
+                  <option value="WORDCLOUD" ${isCloud ? 'selected' : ''}>☁️ Chuva de Palavras (Livre)</option>
+                </select>
+              </div>
+              <button onclick="removeQuestionDraft(${idx})" class="text-rose-400 hover:text-rose-300 text-xs font-bold">🗑️ Remover</button>
+            </div>
+            
+            <input type="text" value="${q.question}" onchange="questionsCache[${idx}].question = this.value" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white font-semibold text-sm focus:border-indigo-500 outline-none" placeholder="Texto da pergunta...">
+            
+            ${isCloud ? `
+              <div class="flex items-center gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-xs text-slate-300">
+                <span>Limite máximo de caracteres:</span>
+                <input type="number" min="5" max="50" value="${q.maxLength || 25}" onchange="questionsCache[${idx}].maxLength = parseInt(this.value) || 25" class="w-20 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-white font-bold outline-none">
+                <span class="text-slate-500">(Ideal: 15 a 30 caracteres para palavras/termos curtos)</span>
+              </div>
+            ` : `
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-1">
+                ${(q.options || []).map((opt, oIdx) => `
+                  <div class="flex items-center gap-2 bg-slate-900/90 px-3 py-1.5 rounded-xl border border-slate-800">
+                    <input type="radio" name="correct_${idx}" ${q.correctIndex === oIdx ? 'checked' : ''} onchange="questionsCache[${idx}].correctIndex = ${oIdx}" title="Marcar como correta">
+                    <input type="text" value="${opt}" onchange="questionsCache[${idx}].options[${oIdx}] = this.value" class="w-full bg-transparent text-sm text-slate-200 outline-none font-medium">
+                  </div>
+                `).join('')}
+              </div>
+            `}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function changeQuestionType(index, newType) {
+      questionsCache[index].type = newType;
+      if (newType === 'WORDCLOUD') {
+        questionsCache[index].maxLength = questionsCache[index].maxLength || 25;
+      } else {
+        questionsCache[index].options = questionsCache[index].options || ["Opção A", "Opção B", "Opção C", "Opção D"];
+        questionsCache[index].correctIndex = questionsCache[index].correctIndex || 0;
+      }
+      renderModalQuestions();
+    }
+
+    function addNewQuestionDraft() {
+      questionsCache.push({
+        id: Date.now(),
+        question: "Nova Pergunta...",
+        options: ["Opção A", "Opção B", "Opção C", "Opção D"],
+        correctIndex: 0,
+        timeLimit: 20
+      });
+      renderModalQuestions();
+    }
+
+    function removeQuestionDraft(index) {
+      questionsCache.splice(index, 1);
+      renderModalQuestions();
+    }
+
+    async function saveQuestionsFromModal() {
+      try {
+        const res = await fetch('/api/questions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(questionsCache)
+        });
+        if (res.ok) {
+          alert('Perguntas salvas com sucesso!');
+          closeQuestionModal();
+        } else {
+          alert('Erro ao salvar perguntas.');
+        }
+      } catch (e) {
+        alert('Erro ao conectar ao servidor.');
+      }
+    }
+
+    window.onload = () => {
+      connectWS();
+    };
+  </script>
+</body>
+</html>
