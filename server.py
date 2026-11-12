@@ -191,7 +191,7 @@ class QuizGame:
         # Broadcast to hosts
         host_payload = json.dumps({"type": "STATE_UPDATE", "data": self.get_state_payload(for_host=True)})
         dead_hosts = set()
-        for host_ws in self.hosts:
+        for host_ws in list(self.hosts):
             try:
                 await host_ws.send_str(host_payload)
             except Exception:
@@ -254,7 +254,7 @@ class QuizGame:
                         await h.send_str(tick_payload)
                     except:
                         pass
-                for p in self.players.values():
+                for p in list(self.players.values()):
                     p_ws = p.get("ws")
                     if p_ws and not p_ws.closed:
                         try:

@@ -3,6 +3,13 @@ import urllib.parse
 import sys
 import os
 
+if sys.platform.startswith("win"):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+
 def generate_qr(target_url, filename="qrcode_slides.png"):
     base_dir = os.path.dirname(os.path.abspath(__file__))
     out_path = os.path.join(base_dir, filename)
@@ -11,7 +18,7 @@ def generate_qr(target_url, filename="qrcode_slides.png"):
     
     print(f"Gerando QR Code para: {target_url}...")
     urllib.request.urlretrieve(api_url, out_path)
-    print(f"✅ QR Code gerado com sucesso em alta resolucao!")
+    print("QR Code gerado com sucesso em alta resolucao!")
     print(f"Arquivo: {out_path}")
     return out_path
 
